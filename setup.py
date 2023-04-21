@@ -49,13 +49,21 @@ ext_modules = [
     Pybind11Extension(
         "whispercppy.api_cpp2py_export",
         [
-            "src/api_cpp2py_export.cc",
-            "src/params.cc",
-            "src/context.cc",
-            "external/whisper.cpp/examples/common.cpp",
+            os.path.join("src", "api_cpp2py_export.cc"),
+            os.path.join("src", "params.cc"),
+            os.path.join("src", "context.cc"),
+            os.path.join("external", "whisper.cpp", "examples", "common.cpp"),
         ],
-        include_dirs=["src/", "external/whisper.cpp", "external/whisper.cpp/examples"],
-        library_dirs=["./build"],
+        include_dirs=[
+            "src",
+            os.path.join("external", "whisper.cpp"),
+            os.path.join(
+                "external",
+                "whisper.cpp",
+                "examples",
+            ),
+        ],
+        library_dirs=["build"],
         libraries=["whisper"],
         runtime_library_dirs=[lib_path],
     ),
@@ -72,5 +80,5 @@ setup(
     ext_modules=ext_modules,
     data_files=[(os.path.relpath(lib_path, sys.prefix), find_library_paths())],
     packages=["whispercppy"],
-    package_dir={"whispercppy": "src/"},
+    package_dir={"whispercppy": "src"},
 )
