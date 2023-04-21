@@ -63,7 +63,7 @@ ext_modules = [
                 "examples",
             ),
         ],
-        library_dirs=["build"],
+        library_dirs=["./build"],
         libraries=["whisper"],
         runtime_library_dirs=[lib_path],
     ),
