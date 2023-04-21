@@ -1,0 +1,3 @@
+import whispercppy
+
+whispercppy.api
