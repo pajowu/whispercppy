@@ -71,7 +71,10 @@ ext_modules = [
         ],
         library_dirs=["./build"],
         libraries=["whisper"],
-        runtime_library_dirs=[os.path.join("@loader_path", "..")],
+        runtime_library_dirs=[
+            os.path.join("@loader_path", ".."),
+            os.path.join("$ORIGIN", ".."),
+        ],
     ),
 ]
 
