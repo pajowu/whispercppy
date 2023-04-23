@@ -20,6 +20,8 @@ jobs:
         uses: pypa/cibuildwheel@v2.12.3
         env:
           CIBW_REPAIR_WHEEL_COMMAND: ""
+          CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
+          CIBW_ARCHS_LINUX: "x86_64 aarch64"
 
       - uses: actions/upload-artifact@v3
         with:

@@ -23,6 +23,12 @@ class build_ext(_build_ext):
         if WHISPER_ENABLE_COREML:
             extra_cmake_flags.append("-DWHISPER_COREML=1")
 
+        # Based on the scikit build tooling
+        archflags = os.environ.get("ARCHFLAGS")
+        if archflags is not None:
+            archs = ";".join(set(archflags.split()) & {"x86_64", "arm64"})
+            extra_cmake_flags.append("-DCMAKE_OSX_ARCHITECTURES:STRING=%s" % archs)
+
         subprocess.check_call(
             [
                 "cmake",
@@ -65,7 +71,7 @@ ext_modules = [
         ],
         library_dirs=["./build"],
         libraries=["whisper"],
-        runtime_library_dirs=[lib_path],
+        runtime_library_dirs=[os.path.join("@loader_path", "..")],
     ),
 ]
 
