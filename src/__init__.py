@@ -29,18 +29,10 @@ if t.TYPE_CHECKING:
     import numpy as np
     from numpy.typing import NDArray
 
-    # NOTE: We can safely ignore the following imports
-    # because they are only used for type checking.
-    from . import api  # type: ignore
-    from . import audio  # type: ignore
+    from . import api
 else:
     api = utils.LazyLoader("api", globals(), "whispercppy.api_cpp2py_export")
-    audio = utils.LazyLoader(
-        "audio",
-        globals(),
-        "whispercppy.audio_cpp2py_export",
-        exc_msg="Failed to import 'audio' extensions. Try to install whispercppy from source.",
-    )
+
 
 try:  # pragma: no cover
     with open(_os.path.join(_os.path.dirname(__file__), "__about__.py")) as f:
@@ -111,7 +103,7 @@ class Whisper:
         else:
             context = api.Context.from_file(model_name, no_state=no_state)
 
-        params = (  # noqa # type: ignore
+        params = (
             api.Params.from_enum(api.SAMPLING_GREEDY)
             .with_print_progress(False)
             .with_print_realtime(False)
@@ -126,7 +118,7 @@ class Whisper:
     @staticmethod
     def from_params(
         model_name: str,
-        params: api.Params,  # noqa # type: ignore
+        params: api.Params,
         basedir: str | None = None,
         no_state: bool = False,
     ):
@@ -224,51 +216,5 @@ class Whisper:
             api.load_wav_file(filename).mono, num_proc=num_proc, strict=strict
         )
 
-    def stream_transcribe(
-        self,
-        device_id: int = 0,
-        sample_rate: int | None = None,
-        **kwargs: t.Any,
-    ) -> list[str]:
-        """Streaming transcription from microphone. Note that this function is blocking.
 
-        Args:
-            length_ms (int, optional): Length of audio to transcribe in milliseconds. Defaults to 10000.
-            device_id (int, optional): Device ID of the microphone. Defaults to 0. Use
-                                       ``whispercpp.utils.available_audio_devices()`` to list all available devices.
-            sample_rate: (int, optional): Sample rate to be passed to Whisper.
-
-        Returns:
-            A generator of all transcripted text from given audio device.
-        """
-        if sample_rate is None:
-            sample_rate = api.SAMPLE_RATE
-        if "length_ms" not in kwargs:
-            kwargs["length_ms"] = 5000
-        if "step_ms" not in kwargs:
-            kwargs["step_ms"] = 700
-
-        if kwargs["step_ms"] < 500:
-            raise ValueError("step_ms must be >= 500")
-
-        ac = audio.AudioCapture(kwargs["length_ms"])
-        if not ac.init_device(device_id, sample_rate):
-            raise RuntimeError("Failed to initialize audio capture device.")
-
-        self.params.on_new_segment(self._store_transcript_handler, self._transcript)
-
-        try:
-            ac.stream_transcribe(self.context, self.params, **kwargs)
-        except KeyboardInterrupt:
-            # handled from C++
-            pass
-        return self._transcript
-
-    def _store_transcript_handler(self, ctx: api.Context, n_new: int, data: list[str]):
-        segment = ctx.full_n_segments() - n_new
-        while segment < ctx.full_n_segments():
-            data.append(ctx.full_get_segment_text(segment))
-            segment += 1
-
-
-__all__ = ["Whisper", "api", "utils", "audio"]
+__all__ = ["Whisper", "api", "utils"]

@@ -1,0 +1,27 @@
+name: lint
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+      - name: cache pre-commit env
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ matrix.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: run pre-commit
+        run: pre-commit run --show-diff-on-failure --color=always --all-files

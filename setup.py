@@ -1,11 +1,12 @@
-from glob import glob
 import os
 import subprocess
 import sys
-from setuptools import setup
+from glob import glob
 from sysconfig import get_path
-from pybind11.setup_helpers import Pybind11Extension, build_ext as _build_ext
-from distutils.core import setup, Extension
+
+from pybind11.setup_helpers import Pybind11Extension
+from pybind11.setup_helpers import build_ext as _build_ext
+from setuptools import setup
 
 WHISPER_ENABLE_COREML = False
 

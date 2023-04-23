@@ -9,16 +9,13 @@
 """
 from __future__ import annotations
 
+import importlib
+import logging
 import sys
 import types
 import typing as t
-import logging
-import importlib
 import urllib.request as request
-from os import path
-from os import environ
-from os import makedirs
-from functools import lru_cache
+from os import environ, makedirs, path
 
 logger = logging.getLogger(__name__)
 
@@ -149,11 +146,3 @@ class LazyLoader(types.ModuleType):
         if self._module is None:
             self._module = self._load()
         return dir(self._module)
-
-
-@lru_cache(maxsize=1)
-def available_audio_devices() -> list[int]:
-    """Returns a list of available audio devices on the system."""
-    from whispercpp import audio  # type: ignore
-
-    return audio.AudioCapture.list_available_devices()

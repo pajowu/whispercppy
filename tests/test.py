@@ -1,3 +1,3 @@
 import whispercppy
 
-whispercppy.api
+_ = whispercppy.api
