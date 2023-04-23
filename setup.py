@@ -87,4 +87,5 @@ setup(
     data_files=[(os.path.relpath(lib_path, sys.prefix), find_library_paths())],
     packages=["whispercppy"],
     package_dir={"whispercppy": "src"},
+    python_requires=">=3.7",
 )
