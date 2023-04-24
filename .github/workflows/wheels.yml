@@ -21,7 +21,7 @@ jobs:
         env:
           CIBW_REPAIR_WHEEL_COMMAND: ""
           CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
-          CIBW_ARCHS_LINUX: "x86_64 aarch64"
+          CIBW_ARCHS_LINUX: "auto64"
           CIBW_BUILD: ${{matrix.pyver}}-*
 
       - uses: actions/upload-artifact@v3
