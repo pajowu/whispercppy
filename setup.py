@@ -3,6 +3,7 @@ import shutil
 import subprocess
 from glob import glob
 from pathlib import Path
+from subprocess import check_output
 from sysconfig import get_path
 
 from pybind11.setup_helpers import Pybind11Extension
@@ -14,12 +15,21 @@ WHISPER_ENABLE_COREML = False
 __version__ = "0.0.1"
 
 
+def update_submodules():
+    git_dir = os.path.dirname(os.path.abspath(__file__))
+    check_output(["git", "init"])
+    check_output(["git", "submodule", "sync", "--recursive"], cwd=git_dir)
+    check_output(["git", "submodule", "update", "--init", "--recursive"], cwd=git_dir)
+
+
 class CopyWhisperDummyExtension(Extension):
     pass
 
 
 class build_ext(_build_ext):
     def run(self):
+
+        update_submodules()
 
         # Run CMake to build the libwhisper library
         cmake_dir = os.path.realpath(os.path.join("external", "whisper.cpp"))
@@ -75,7 +85,7 @@ def find_library_paths():
 
 lib_path = get_path("platlib")
 ext_modules = [
-    CopyWhisperDummyExtension("whispercppy", [os.path.join("external", "whisper.cpp")]),
+    CopyWhisperDummyExtension("whispercppy", []),
     Pybind11Extension(
         "whispercppy.api_cpp2py_export",
         [
