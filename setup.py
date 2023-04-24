@@ -1,21 +1,26 @@
 import os
+import shutil
 import subprocess
-import sys
 from glob import glob
 from pathlib import Path
 from sysconfig import get_path
 
 from pybind11.setup_helpers import Pybind11Extension
 from pybind11.setup_helpers import build_ext as _build_ext
-from setuptools import setup
+from setuptools import Extension, setup
 
 WHISPER_ENABLE_COREML = False
 
 __version__ = "0.0.1"
 
 
+class CopyWhisperDummyExtension(Extension):
+    pass
+
+
 class build_ext(_build_ext):
     def run(self):
+
         # Run CMake to build the libwhisper library
         cmake_dir = os.path.realpath(os.path.join("external", "whisper.cpp"))
         pkg_build_dir = os.path.realpath("build")
@@ -45,6 +50,22 @@ class build_ext(_build_ext):
             ["cmake", "--build", ".", "--target", "whisper"], cwd=pkg_build_dir
         )
 
+        filtered_ext = []
+        for ext in self.extensions:
+            if isinstance(ext, CopyWhisperDummyExtension):
+                ext_dir = (
+                    Path(self.get_ext_fullpath(ext.name)).parent.absolute() / ext.name
+                )
+
+                for lib_file in find_library_paths():
+                    print("copying", lib_file, "to", ext_dir)
+                    shutil.copyfile(
+                        lib_file,
+                        ext_dir / os.path.basename(lib_file),
+                    )
+            else:
+                filtered_ext.append(ext)
+        self.extensions = filtered_ext
         super().run()
 
 
@@ -54,6 +75,7 @@ def find_library_paths():
 
 lib_path = get_path("platlib")
 ext_modules = [
+    CopyWhisperDummyExtension("whispercppy", [os.path.join("external", "whisper.cpp")]),
     Pybind11Extension(
         "whispercppy.api_cpp2py_export",
         [
@@ -73,10 +95,7 @@ ext_modules = [
         ],
         library_dirs=["./build"],
         libraries=["whisper"],
-        runtime_library_dirs=[
-            os.path.join("@loader_path", ".."),
-            os.path.join("$ORIGIN", ".."),
-        ],
+        runtime_library_dirs=["@loader_path", "$ORIGIN"],
     ),
 ]
 
@@ -93,7 +112,6 @@ setup(
     description="Python bindings for whisper.cpp",
     cmdclass={"build_ext": build_ext},
     ext_modules=ext_modules,
-    data_files=[(os.path.relpath(lib_path, sys.prefix), find_library_paths())],
     packages=["whispercppy"],
     package_dir={"whispercppy": "src"},
     python_requires=">=3.7",
