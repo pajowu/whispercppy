@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 from glob import glob
+from pathlib import Path
 from sysconfig import get_path
 
 from pybind11.setup_helpers import Pybind11Extension
@@ -79,6 +80,10 @@ ext_modules = [
     ),
 ]
 
+
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
+
 setup(
     name="whispercppy",
     version=__version__,
@@ -92,4 +97,6 @@ setup(
     packages=["whispercppy"],
     package_dir={"whispercppy": "src"},
     python_requires=">=3.7",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
 )
