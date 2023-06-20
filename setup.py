@@ -11,7 +11,7 @@ from setuptools import Extension, setup
 
 WHISPER_ENABLE_COREML = False
 
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 
 
 class CopyWhisperDummyExtension(Extension):
@@ -116,5 +116,5 @@ setup(
     python_requires=">=3.7",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    package_data={"": ["src/*.h"]},
+    package_data={"": ["src/*.h"], "whispercppy": ["py.typed", "*.pyi"]},
 )
