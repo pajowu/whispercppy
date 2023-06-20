@@ -2,5 +2,3 @@ graft external/whisper.cpp
 prune external/whisper.cpp/models
 
 include src/*.h
-include src/*.pyi
-include src/py.typed
